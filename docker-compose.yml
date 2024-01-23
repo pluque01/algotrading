@@ -1,0 +1,14 @@
+version: '3'
+
+env_file:
+  - path: ./.env
+    required: true # default
+
+services:
+  python:
+    build:
+      context: .
+    environment:
+        - API-URL=${API-URL}
+    volumes:
+      - ./src:/app/src
