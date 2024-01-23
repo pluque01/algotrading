@@ -1,14 +1,13 @@
 version: '3'
 
-env_file:
-  - path: ./.env
-    required: true # default
-
 services:
   python:
+    env_file: .env
     build:
       context: .
     environment:
-        - API-URL=${API-URL}
+        - API_URL=${API_URL}
+        - API_KEY=${API_KEY}
+        - API_SECRET=${API_SECRET}
     volumes:
       - ./src:/app/src

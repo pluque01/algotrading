@@ -3,18 +3,15 @@ import json
 import pandas as pd
 from alpaca_trade_api import REST, TimeFrame
 from datetime import datetime, timedelta
- 
-config_file = './app_config.json'
-with open(config_file, "r") as f:
-    conf = json.load(f)
 
-api_key = conf['API-KEY']
-secret_key = conf['SECRET-KEY']
-base_url = conf['API-URL']
+# Loading the environment variables
+api_url = os.environ.get('API_URL')
+api_key = os.environ.get('API_KEY')
+api_secret = os.environ.get('API_SECRET')
 
 symbols = ['MMM']
 
-api = REST(key_id=api_key, secret_key=secret_key, base_url=base_url, api_version='v2')
+api = REST(key_id=api_key, secret_key=api_secret, base_url=api_url, api_version='v2')
 # Setting the date range of stock prices we want to get
 end_date = datetime.today() - timedelta(days=1)
 start_date = end_date - timedelta(days=365 * 2)
