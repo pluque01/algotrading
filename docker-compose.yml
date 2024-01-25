@@ -2,12 +2,17 @@ version: '3'
 
 services:
   python:
-    env_file: .env
     build:
       context: .
+    env_file:
+      - .env
     environment:
         - API_URL=${API_URL}
         - API_KEY=${API_KEY}
-        - API_SECRET=${API_SECRET}
+        - SECRET_KEY=${SECRET_KEY}
     volumes:
       - ./src:/app/src
+    command: ["python", "/app/src/algotrading.py"]
+    #command: tail -f /dev/null
+
+
