@@ -1,3 +1,4 @@
-alpaca_trade_api==3.2.0
+alpaca_trade_api
 matplotlib==3.8.2
 backtesting==0.3.3
+alpaca-py

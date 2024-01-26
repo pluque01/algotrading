@@ -22,48 +22,26 @@ symbols = ["MMM"]
 api = REST(key_id=api_key, secret_key=secret_key, base_url=base_url, api_version="v2")
 # Setting the date range of stock prices we want to get
 end_date = datetime.today() - timedelta(days=1)
-start_date = end_date - timedelta(days=365 * 2)
+start_date = end_date - timedelta(days=90)
 
 df_barset = api.get_bars(
     symbols,
-    TimeFrame.Day,
+    TimeFrame.Hour,
     start_date.strftime("%Y-%m-%d"),
     end_date.strftime("%Y-%m-%d"),
     adjustment="all",
 ).df
 df_barset = df_barset.reset_index(level=0)
 
-# print(df_barset)
 
-ma_10 = talib.MA(df_barset["close"], timeperiod=10, matype=0)
-
-ma_30 = talib.MA(df_barset["close"], timeperiod=30, matype=0)
-
-# print(ma_10)
-
-# print(ma_30)
-
-matriz_estrategia = np.vstack((df_barset["close"], ma_10, ma_30))
-
-# Eliminar las filas que contienen NaN
-matriz_estrategia = matriz_estrategia[~np.isnan(matriz_estrategia).any(axis=1)]
-
-# Nombres de las columnas
-nombres_columnas = ["cierre", "ma10", "ma30"]
-
-# Crear un dtype con nombres para las columnas
-dtype = np.dtype({"names": nombres_columnas, "formats": [float, float, float]})
-
-# Crear una nueva matriz con dtype
-matriz_estrategia = np.array(matriz_estrategia, dtype=dtype)
-
-
+# Puedes crear cualquier tipo de estrategia. Documentación en: https://kernc.github.io/backtesting.py/doc/backtesting/backtesting.html#backtesting.backtesting.Strategy
 class SmaCross(Strategy):
     n1 = 10
     n2 = 20
 
     def init(self):
         close = self.data.Close
+        # Esto es para crear indicadores, podemos usar los de ta-lib tal y como viene en la documentación
         self.sma1 = self.I(SMA, close, self.n1)
         self.sma2 = self.I(SMA, close, self.n2)
 
@@ -74,6 +52,8 @@ class SmaCross(Strategy):
             self.sell()
 
 
+# Para que funcione correctamente hay que renombrar las columnas y establecer el índice del
+# dataFrame en la fecha.
 df_barset = df_barset.rename(
     columns={
         "open": "Open",
@@ -91,8 +71,32 @@ df_barset = df_barset.set_index("timestamp")
 
 bt = Backtest(df_barset, SmaCross, cash=10000, commission=0.002, exclusive_orders=True)
 
-output = bt.run()
+output = bt.optimize(
+    n1=range(5, 30, 5),
+    n2=range(10, 70, 5),
+    maximize="Equity Final [$]",
+    constraint=lambda param: param.n1 < param.n2,
+)
 
 print(output)
 
 # print(output._strategy)
+
+
+# Pruebo a iniciar sesión
+from alpaca.trading.client import TradingClient
+from alpaca.trading.requests import GetAssetsRequest
+
+trading_client = TradingClient(api_key, secret_key)
+
+# Get our account information.
+account = trading_client.get_account()
+
+print(account)
+
+# Check if our account is restricted from trading.
+if account.trading_blocked:
+    print("Account is currently restricted from trading.")
+
+# Check how much money we can use to open new positions.
+print("${} is available as buying power.".format(account.buying_power))
