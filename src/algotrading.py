@@ -73,10 +73,19 @@ class SmaCross(Strategy):
         elif crossover(self.sma2, self.sma1):
             self.sell()
 
-df_barset = df_barset.rename(columns={'open': 'Open', 'close': 'Close', 'high': 'High', 'low': 'Low', 'volume': 'Volume'})
-df_barset['timestamp'] = pd.to_datetime(df_barset['timestamp'], errors='coerce')
 
-df_barset = df_barset.set_index('timestamp')
+df_barset = df_barset.rename(
+    columns={
+        "open": "Open",
+        "close": "Close",
+        "high": "High",
+        "low": "Low",
+        "volume": "Volume",
+    }
+)
+df_barset["timestamp"] = pd.to_datetime(df_barset["timestamp"], errors="coerce")
+
+df_barset = df_barset.set_index("timestamp")
 
 # print(df_barset.columns)
 
