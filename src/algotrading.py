@@ -78,7 +78,8 @@ output = bt.optimize(
     constraint=lambda param: param.n1 < param.n2,
 )
 
-print(output)
+
+bt.plot(filename="./frontend/output")
 
 # print(output._strategy)
 
