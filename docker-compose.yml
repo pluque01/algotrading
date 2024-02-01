@@ -1,4 +1,4 @@
-version: '3'
+version: "3"
 
 services:
   python:
@@ -7,12 +7,17 @@ services:
     env_file:
       - .env
     environment:
-        - API_URL=${API_URL}
-        - API_KEY=${API_KEY}
-        - SECRET_KEY=${SECRET_KEY}
+      - API_URL=${API_URL}
+      - API_KEY=${API_KEY}
+      - SECRET_KEY=${SECRET_KEY}
     volumes:
-      - ./src:/app/src
+      - ./src/:/app/src
+      - ./frontend:/app/frontend
     command: ["python", "/app/src/algotrading.py"]
-    #command: tail -f /dev/null
-
-
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./frontend/:/var/www
+      - ./nginx/conf.d/:/etc/nginx/conf.d/
