@@ -5,17 +5,13 @@ RUN apt-get update && apt-get install -y build-essential
 RUN apt-get update && apt-get install -y curl
 
 RUN curl -L https://sourceforge.net/projects/ta-lib/files/ta-lib/0.4.0/ta-lib-0.4.0-src.tar.gz/download?use_mirror=deac-ams -o ta-lib.tar.gz \
-    && tar -xvzf ta-lib.tar.gz \
-    && cd ta-lib \
-    && ./configure --prefix=/usr \
-    && make \
-    && make install \
-    && cd .. \
-    && rm -rf /app/ta-lib /app/ta-lib.tar.gz
-
-RUN adduser --disabled-password -u 1001 pythonuser
-
-USER pythonuser
+  && tar -xvzf ta-lib.tar.gz \
+  && cd ta-lib \
+  && ./configure --prefix=/usr \
+  && make \
+  && make install \
+  && cd .. \
+  && rm -rf /app/ta-lib /app/ta-lib.tar.gz
 
 WORKDIR /app
 
