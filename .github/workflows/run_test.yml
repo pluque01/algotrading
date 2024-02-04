@@ -6,7 +6,7 @@ jobs:
     name: Pytest testing
     runs-on: ubuntu-latest
     container:
-      image: docker://${{ secrets.DOCKERHUB_USERNAME }}/algotrading:latest
+      image: docker://fallenmeteor/algotrading:latest
     steps:
       - uses: actions/checkout@v4
       - name: Test with pytest
