@@ -5,3 +5,5 @@ TA-Lib
 alpaca-py
 fastapi
 uvicorn[standard]
+pytest
+httpx
