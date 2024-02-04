@@ -12,7 +12,7 @@ services:
       - API_KEY=${API_KEY}
       - SECRET_KEY=${SECRET_KEY}
     volumes:
-      - ./src/:/app/algotrading
+      - ./algotrading/:/app/algotrading
       - ./frontend:/app/frontend
     ports:
       - 8080:8000

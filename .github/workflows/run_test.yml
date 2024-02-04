@@ -13,7 +13,7 @@ jobs:
         API_KEY: ${{ secrets.API_KEY }}
         SECRET_KEY: ${{ secrets.SECRET_KEY }}
       volumes:
-        - ${{ github.workspace }}/src:/app/algotrading
+        - ${{ github.workspace }}/algotrading:/app/algotrading
     steps:
       - uses: actions/checkout@v4
       - name: Test with pytest
