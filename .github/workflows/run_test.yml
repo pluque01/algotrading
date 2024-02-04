@@ -3,7 +3,7 @@ name: Pytest with Docker image
 on: [push]
 jobs:
   build:
-    name: Pytest in Pipenv
+    name: Pytest testing
     runs-on: ubuntu-latest
     container:
       image: docker://${{ secrets.DOCKERHUB_USERNAME }}/algotrading:latest
