@@ -1,8 +1,6 @@
 FROM python:3.12-rc-slim
 
-RUN apt-get update && apt-get install -y build-essential
-
-RUN apt-get update && apt-get install -y curl
+RUN apt-get update && apt-get install -y build-essential curl
 
 RUN curl -L https://sourceforge.net/projects/ta-lib/files/ta-lib/0.4.0/ta-lib-0.4.0-src.tar.gz/download?use_mirror=deac-ams -o ta-lib.tar.gz \
   && tar -xvzf ta-lib.tar.gz \
