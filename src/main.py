@@ -4,7 +4,7 @@ from typing import List
 
 from fastapi import FastAPI
 from alpaca_trade_api import REST
-from algotrading.models import Asset
+from .models import Asset
 
 api_key = os.environ["API_KEY"]
 secret_key = os.environ["SECRET_KEY"]
