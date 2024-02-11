@@ -1,12 +1,22 @@
 import os
 import importlib
 import re
-import pandas as pd
 from typing import List
 from datetime import datetime
 
 from fastapi import FastAPI, HTTPException
-from alpaca_trade_api import REST, TimeFrame, TimeFrameUnit
+from alpaca.data import (
+    StockHistoricalDataClient,
+    StockBarsRequest,
+    Adjustment,
+    TimeFrame,
+    TimeFrameUnit,
+)
+from alpaca.trading.client import TradingClient
+from alpaca.trading.requests import GetAssetsRequest
+from alpaca.trading.enums import AssetStatus
+
+
 from backtesting import Backtest
 
 from .models import Asset
@@ -16,7 +26,9 @@ api_key = os.environ["API_KEY"]
 secret_key = os.environ["SECRET_KEY"]
 base_url = os.environ["API_URL"]
 
-api = REST(key_id=api_key, secret_key=secret_key, base_url=base_url, api_version="v2")
+# api = REST(key_id=api_key, secret_key=secret_key, base_url=base_url, api_version="v2")
+trading_client = TradingClient(api_key, secret_key)
+stock_client = StockHistoricalDataClient(api_key, secret_key)
 app = FastAPI()
 
 
@@ -24,8 +36,9 @@ app = FastAPI()
 def parse_assets(assets):
     parsed_assets_list: List[Asset] = []
     for asset in assets:
+        asset_id = str(asset.id)
         parsed_asset = Asset(
-            id=asset.id, symbol=asset.symbol, name=asset.name, exchange=asset.exchange
+            id=asset_id, symbol=asset.symbol, name=asset.name, exchange=asset.exchange
         )
         parsed_assets_list.append(parsed_asset)
     return parsed_assets_list
@@ -46,8 +59,9 @@ def parse_timeframe(string):
 
 @app.get("/assets")
 def get_assets() -> List[Asset]:
-    active_assets = api.list_assets(status="active")
-    symbols = parse_assets(active_assets)
+    search_params = GetAssetsRequest(status=AssetStatus.ACTIVE)
+    assets = trading_client.get_all_assets(search_params)
+    symbols = parse_assets(assets)
     return symbols
 
 
@@ -94,21 +108,29 @@ def get_backtest(
 
     try:
         amount, timeframe_unit = parse_timeframe(timeframe)
-        TimeFrame(amount, timeframe_unit)
+        tf = TimeFrame(amount, timeframe_unit)
     except ValueError as e:
         raise HTTPException(status_code=422, detail=str(e))
 
-    df_barset = api.get_bars(
-        symbol,
-        timeframe,
-        start,
-        end,
-        adjustment="all",
-    ).df
-    df_barset = df_barset.reset_index(level=0)
+    request_params = StockBarsRequest(
+        symbol_or_symbols=[symbol],
+        timeframe=tf,
+        start=datetime.strptime(start, "%Y-%m-%d"),
+        end=datetime.strptime(end, "%Y-%m-%d"),
+        adjustment=Adjustment.ALL,
+    )
+
+    bars = stock_client.get_stock_bars(request_params)
+
+    if bars.data == {}:
+        raise HTTPException(status_code=404, detail="No data found for the given input")
+
+    bars_df = bars.df
+
+    bars_df = bars_df.reset_index(level=0)
     # Para que funcione correctamente hay que renombrar las columnas y establecer el índice del
     # dataFrame en la fecha.
-    df_barset = df_barset.rename(
+    bars_df = bars_df.rename(
         columns={
             "open": "Open",
             "close": "Close",
@@ -117,12 +139,12 @@ def get_backtest(
             "volume": "Volume",
         }
     )
-    df_barset["timestamp"] = pd.to_datetime(df_barset["timestamp"], errors="coerce")
+    # bars_df["timestamp"] = pd.to_datetime(bars_df["timestamp"], errors="ignore")
 
-    df_barset = df_barset.set_index("timestamp")
+    # bars_df = bars_df.set_index("timestamp")
 
     bt = Backtest(
-        df_barset,
+        bars_df,
         chosen_strategy_class,
         cash=10000,
         commission=0.002,
