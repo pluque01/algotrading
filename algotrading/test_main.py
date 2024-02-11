@@ -1,6 +1,4 @@
 from fastapi.testclient import TestClient
-from datetime import datetime
-import pandas as pd
 
 from .main import app
 
@@ -52,9 +50,17 @@ def test_get_backtest_invalid_timeframe():
     assert response.json().get("detail") is not None
 
 
-def test_get_backtest_successful():
+def test_get_backtest_no_data_found():
     response = client.get(
         "/backtest/ETH?start=2022-01-01&end=2022-01-31&strategy=SmaCross&timeframe=2Hour"
+    )
+    assert response.status_code == 404
+    assert response.json().get("detail") == "No data found for the given input"
+
+
+def test_get_backtest_successful():
+    response = client.get(
+        "/backtest/MMM?start=2022-01-01&end=2022-01-31&strategy=SmaCross&timeframe=2Hour"
     )
     assert response.status_code == 200
     assert response.json().get("success") is not None
