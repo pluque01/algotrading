@@ -1,9 +1,10 @@
 version: "3"
 
 services:
-  python:
+  fastapi:
     build:
       context: .
+    command: uvicorn algotrading.main:app --reload --host 0.0.0.0
     env_file:
       - .env
     environment:
@@ -11,9 +12,10 @@ services:
       - API_KEY=${API_KEY}
       - SECRET_KEY=${SECRET_KEY}
     volumes:
-      - ./src/:/app/src
+      - ./algotrading/:/app/algotrading
       - ./frontend:/app/frontend
-    command: ["python", "/app/src/algotrading.py"]
+    ports:
+      - 8080:8000
   nginx:
     image: nginx:alpine
     ports:

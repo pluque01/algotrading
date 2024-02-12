@@ -1,8 +1,6 @@
 FROM python:3.12-rc-slim
 
-RUN apt-get update && apt-get install -y build-essential
-
-RUN apt-get update && apt-get install -y curl
+RUN apt-get update && apt-get install -y build-essential curl
 
 RUN curl -L https://sourceforge.net/projects/ta-lib/files/ta-lib/0.4.0/ta-lib-0.4.0-src.tar.gz/download?use_mirror=deac-ams -o ta-lib.tar.gz \
   && tar -xvzf ta-lib.tar.gz \
@@ -15,9 +13,11 @@ RUN curl -L https://sourceforge.net/projects/ta-lib/files/ta-lib/0.4.0/ta-lib-0.
 
 WORKDIR /app
 
+# Prevents Python from writing pyc files to disc (equivalent to python -B option)
+ENV PYTHONDONTWRITEBYTECODE 1
+# Prevents Python from buffering stdout and stderr (equivalent to python -u option)
+ENV PYTHONUNBUFFERED 1
+
 COPY requirements.txt .
 
-RUN pip install --upgrade pip; pip install -r requirements.txt
-
-RUN pip install TA-Lib
-
+RUN pip install --upgrade pip; pip install --no-cache-dir -r requirements.txt

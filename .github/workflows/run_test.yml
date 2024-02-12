@@ -1,0 +1,21 @@
+name: Pytest with Docker image
+
+on: [push]
+jobs:
+  build:
+    name: Pytest testing
+    runs-on: ubuntu-latest
+    container:
+      image: docker://fallenmeteor/algotrading:latest
+      env:
+        NODE_ENV: development
+        API_URL: ${{ secrets.API_URL }}
+        API_KEY: ${{ secrets.API_KEY }}
+        SECRET_KEY: ${{ secrets.SECRET_KEY }}
+      volumes:
+        - ${{ github.workspace }}/algotrading:/app/algotrading
+    steps:
+      - uses: actions/checkout@v4
+      - name: Test with pytest
+        run: |
+          pytest -v
