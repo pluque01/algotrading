@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    <script src="js/utils.js"></script>
     <title>Algotrading</title>
   </head>
 
@@ -13,6 +14,75 @@
     </header>
     <section>
       <a href="output.html" target="_blank">Ver resultados</a>
+    </section>
+    <section>
+      <h3>
+        Search Contacts
+        <span class="htmx-indicator"> Searching... </span>
+      </h3>
+      <select
+        name="make"
+        hx-trigger="load"
+        hx-get="http://localhost:8080/strategies"
+        hx-target="this"
+        hx-swap="innerHTML"
+        hx-indicator=".htmx-indicator"
+      ></select>
+      <input
+        class="form-control"
+        type="search"
+        name="search"
+        placeholder="Begin Typing To Search Assets..."
+        hx-get="http://localhost:8080/assets"
+        hx-trigger="search"
+        hx-target="#searchResults"
+        hx-indicator=".htmx-indicator"
+      />
+
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Symbol</th>
+            <th>Name</th>
+          </tr>
+        </thead>
+        <tbody id="search-results"></tbody>
+      </table>
+
+      <div class="results-container">
+        <div class="results-column">
+          <h3>Search Results</h3>
+          <table
+            class="table"
+            id="searchResults"
+            hx-target="#selectedResults"
+            hx-swap="outerHTML"
+            hx-on::after-swap="filterResults()"
+          >
+            <thead>
+              <tr>
+                <th>Symbol</th>
+                <th>Name</th>
+              </tr>
+            </thead>
+          </table>
+        </div>
+        <div class="results-column" style="margin-left: 20px">
+          <h3>Selected Results</h3>
+          <table
+            class="table"
+            id="selectedResults"
+            hx-trigger="click"
+            hx-boost="true"
+          >
+            <tr>
+              <th>Symbol</th>
+              <th>Name</th>
+            </tr>
+          </table>
+          <!-- Selected results will be loaded here -->
+        </div>
+      </div>
     </section>
   </body>
 </html>

@@ -3,9 +3,14 @@ import importlib
 import re
 from typing import List
 from datetime import datetime
-from fastapi.middleware.cors import CORSMiddleware
+from pathlib import Path
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import HTMLResponse
+from fastapi.templating import Jinja2Templates
+from fastapi_htmx import htmx, htmx_init
+
 from alpaca.data import (
     StockHistoricalDataClient,
     StockBarsRequest,
@@ -30,6 +35,8 @@ base_url = os.environ["API_URL"]
 # api = REST(key_id=api_key, secret_key=secret_key, base_url=base_url, api_version="v2")
 trading_client = TradingClient(api_key, secret_key)
 stock_client = StockHistoricalDataClient(api_key, secret_key)
+
+
 app = FastAPI()
 
 origins = [
@@ -45,6 +52,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+htmx_init(templates=Jinja2Templates(directory=Path("algotrading") / "templates"))
+
+
 # This function cicles through the assets and creates a Symbol object for each one
 def parse_assets(assets):
     parsed_assets_list: List[Asset] = []
@@ -55,6 +65,11 @@ def parse_assets(assets):
         )
         parsed_assets_list.append(parsed_asset)
     return parsed_assets_list
+
+
+search_params = GetAssetsRequest(status=AssetStatus.ACTIVE)
+assets = trading_client.get_all_assets(search_params)
+every_symbol = parse_assets(assets)
 
 
 def parse_timeframe(string):
@@ -70,16 +85,27 @@ def parse_timeframe(string):
         raise ValueError(f"Invalid timeframe {string}")
 
 
-@app.get("/assets")
-def get_assets() -> List[Asset]:
-    search_params = GetAssetsRequest(status=AssetStatus.ACTIVE)
-    assets = trading_client.get_all_assets(search_params)
-    symbols = parse_assets(assets)
-    return symbols
+def filter_assets_by_prefix(assets: List[Asset], prefix: str) -> List[Asset]:
+    filtered_assets = [
+        asset
+        for asset in assets
+        if asset.name.lower().startswith(prefix.lower())
+        or asset.symbol.lower().startswith(prefix.lower())
+    ]
+    return filtered_assets
 
 
-@app.get("/strategies")
-def get_strategies():
+@app.get("/assets", response_class=HTMLResponse)
+@htmx("assets")
+def get_assets(request: Request, search: str) -> List[Asset]:
+    assets = filter_assets_by_prefix(every_symbol, search)
+    print(assets)
+    return {"assets": assets}
+
+
+@app.get("/strategies", response_class=HTMLResponse)
+@htmx("strategies")
+def get_strategies(request: Request):
     strategies_module = importlib.import_module("algotrading.strategies")
     strategies_atributes = dir(strategies_module)
 
