@@ -7,3 +7,5 @@ fastapi
 uvicorn[standard]
 pytest
 httpx
+jinja2
+fastapi-htmx
