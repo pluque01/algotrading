@@ -3,6 +3,7 @@ import importlib
 import re
 from typing import List
 from datetime import datetime
+from fastapi.middleware.cors import CORSMiddleware
 
 from fastapi import FastAPI, HTTPException
 from alpaca.data import (
@@ -31,6 +32,18 @@ trading_client = TradingClient(api_key, secret_key)
 stock_client = StockHistoricalDataClient(api_key, secret_key)
 app = FastAPI()
 
+origins = [
+    "http://localhost",
+    "http://localhost:8080",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # This function cicles through the assets and creates a Symbol object for each one
 def parse_assets(assets):
