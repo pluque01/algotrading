@@ -52,7 +52,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-htmx_init(templates=Jinja2Templates(directory=Path("algotrading") / "templates"))
+htmx_init(
+    templates=Jinja2Templates(directory=Path("algotrading") / "templates"),
+    file_extension="html",
+)
 
 
 # This function cicles through the assets and creates a Symbol object for each one

@@ -1,0 +1,11 @@
+{% for asset in assets %}
+<tr
+  class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted"
+  id="id-{{asset.id}}"
+  onclick="addToSelection(id)"
+>
+  <input type="hidden" name="symbol" value="{{ asset.symbol }}" />
+  <td class="p-4 align-middle">{{ asset.name }}</td>
+  <td class="p-4 align-middle font-medium text-right">{{asset.symbol}}</td>
+</tr>
+{% endfor %}
