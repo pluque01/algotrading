@@ -25,7 +25,7 @@ from alpaca.trading.enums import AssetStatus
 
 from backtesting import Backtest
 
-from .models import Asset
+from .models import Asset, BacktestResults
 from . import strategies
 
 api_key = os.environ["API_KEY"]
@@ -65,6 +65,18 @@ def parse_assets(assets):
         )
         parsed_assets_list.append(parsed_asset)
     return parsed_assets_list
+
+
+def parse_backtest_results(results):
+    return BacktestResults(
+        start_time=results["Start"],
+        end_time=results["End"],
+        duration=str(results["Duration"]),
+        exposure_time=results["Exposure Time [%]"],
+        equity_final=results["Equity Final [$]"],
+        equity_peak=results["Equity Peak [$]"],
+        ret=results["Return [%]"],
+    )
 
 
 search_params = GetAssetsRequest(status=AssetStatus.ACTIVE)
@@ -119,10 +131,16 @@ def get_strategies(request: Request):
     return {"strategies": strategies}
 
 
-@app.get("/backtest/{symbol}")
+@app.get("/backtest", response_class=HTMLResponse)
+@htmx("backtest_result")
 def get_backtest(
-    symbol: str, start: str, end: str, strategy: str, timeframe: str | None = "1Hour"
-):
+    request: Request,
+    symbol: str,
+    start: str,
+    end: str,
+    strategy: str,
+    timeframe: str | None = "1Hour",
+) -> BacktestResults:
     try:
         datetime.strptime(end, "%Y-%m-%d")
     except ValueError:
@@ -189,13 +207,13 @@ def get_backtest(
         commission=0.002,
         exclusive_orders=True,
     )
-    bt.optimize(
-        n1=range(5, 30, 5),
-        n2=range(10, 70, 5),
-        maximize="Equity Final [$]",
-        constraint=lambda param: param.n1 < param.n2,
-    )
-
-    file = f"{symbol}_{start}_{end}_{timeframe}_{strategy}"
-    bt.plot(filename=f"frontend/{file}")
-    return {"success": file}
+    # bt.optimize(
+    #     n1=range(5, 30, 5),
+    #     n2=range(10, 70, 5),
+    #     maximize="Equity Final [$]",
+    #     constraint=lambda param: param.n1 < param.n2,
+    # )
+    results = parse_backtest_results(bt.run())
+    # file = f"{symbol}_{start}_{end}_{timeframe}_{strategy}"
+    # bt.plot(filename=f"frontend/{file}")
+    return {"results": results.dict()}

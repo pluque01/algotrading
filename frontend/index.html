@@ -21,7 +21,8 @@
         <span class="htmx-indicator"> Searching... </span>
       </h3>
       <select
-        name="make"
+        name="strategy"
+        id="strategy-selector"
         hx-trigger="load"
         hx-get="http://localhost:8080/strategies"
         hx-target="this"
@@ -38,7 +39,6 @@
         hx-target="#searchResults"
         hx-indicator=".htmx-indicator"
       />
-
       <table class="table">
         <thead>
           <tr>
@@ -82,6 +82,30 @@
           </table>
           <!-- Selected results will be loaded here -->
         </div>
+      </div>
+      <div>
+        <label for="start">Start date:</label>
+        <input
+          type="date"
+          name="start"
+          id="backtest-start"
+          value="2023-01-01"
+        />
+        <label for="end">End date:</label>
+        <input type="date" name="end" id="backtest-end" value="2023-12-31" />
+      </div>
+    </section>
+    <section>
+      <h3>Backtesting Results</h3>
+      <div>
+        <ul id="backtesting-results"></ul>
+        <button
+          hx-get="http://localhost:8080/backtest"
+          hx-include="[id=selectedResults] tr input, [id=backtest-start], [id=backtest-end], [id=strategy-selector]"
+          hx-target="#backtesting-results"
+        >
+          Get results
+        </button>
       </div>
     </section>
   </body>
