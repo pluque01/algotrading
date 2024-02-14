@@ -10,104 +10,187 @@
   </head>
 
   <body>
-    <header>
-      <h1>Algotrading</h1>
-    </header>
-    <section>
-      <a href="output.html" target="_blank">Ver resultados</a>
-    </section>
-    <section>
-      <h3>
-        Search Contacts
-        <span class="htmx-indicator"> Searching... </span>
-      </h3>
-      <select
-        name="strategy"
-        id="strategy-selector"
-        hx-trigger="load"
-        hx-get="http://localhost:8080/strategies"
-        hx-target="this"
-        hx-swap="innerHTML"
-        hx-indicator=".htmx-indicator"
-      ></select>
-      <input
-        class="form-control"
-        type="search"
-        name="search"
-        placeholder="Begin Typing To Search Assets..."
-        hx-get="http://localhost:8080/assets"
-        hx-trigger="search"
-        hx-target="#searchResults"
-        hx-indicator=".htmx-indicator"
-      />
-      <table class="table">
-        <thead>
-          <tr>
-            <th>Symbol</th>
-            <th>Name</th>
-          </tr>
-        </thead>
-        <tbody id="search-results"></tbody>
-      </table>
-
-      <div class="results-container">
-        <div class="results-column">
-          <h3>Search Results</h3>
-          <table
-            class="table"
-            id="searchResults"
-            hx-target="#selectedResults"
-            hx-swap="outerHTML"
-            hx-on::after-swap="filterResults()"
-          >
-            <thead>
-              <tr>
-                <th>Symbol</th>
-                <th>Name</th>
-              </tr>
-            </thead>
-          </table>
-        </div>
-        <div class="results-column" style="margin-left: 20px">
-          <h3>Selected Results</h3>
-          <table
-            class="table"
-            id="selectedResults"
-            hx-trigger="click"
-            hx-boost="true"
-          >
-            <tr>
-              <th>Symbol</th>
-              <th>Name</th>
-            </tr>
-          </table>
-          <!-- Selected results will be loaded here -->
-        </div>
-      </div>
-      <div>
-        <label for="start">Start date:</label>
-        <input
-          type="date"
-          name="start"
-          id="backtest-start"
-          value="2023-01-01"
-        />
-        <label for="end">End date:</label>
-        <input type="date" name="end" id="backtest-end" value="2023-12-31" />
-      </div>
-    </section>
-    <section>
-      <h3>Backtesting Results</h3>
-      <div>
-        <ul id="backtesting-results"></ul>
-        <button
-          hx-get="http://localhost:8080/backtest"
-          hx-include="[id=selectedResults] tr input, [id=backtest-start], [id=backtest-end], [id=strategy-selector]"
-          hx-target="#backtesting-results"
+    <header class="flex items-center h-16 px-4 border-b shrink-0 md:px-6 mb-8">
+      <a class="flex items-center gap-2 text-lg font-semibold" href="#">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          class="w-6 h-6"
         >
-          Get results
-        </button>
-      </div>
-    </section>
+          <path d="M3 9h18v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9Z"></path>
+          <path
+            d="m3 9 2.45-4.9A2 2 0 0 1 7.24 3h9.52a2 2 0 0 1 1.8 1.1L21 9"
+          ></path>
+          <path d="M12 3v6"></path>
+        </svg>
+        <span class="">Algotrading</span>
+      </a>
+    </header>
+    <div class="container mx-auto">
+      <section class="grid grid-cols-12 gap-4 items-start">
+        <div class="col-span-5 flex flex-col gap-4">
+          <div>
+            <label
+              class="font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-sm"
+              for="search"
+            >
+              Search
+            </label>
+            <input
+              class="form-control flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+              type="search"
+              name="search"
+              placeholder="Begin Typing To Search Assets..."
+              hx-get="http://localhost:8080/assets"
+              hx-trigger="search"
+              hx-target="#searchResults"
+            />
+          </div>
+          <div class="search-table-container">
+            <label
+              class="font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-sm"
+            >
+              Found Assets
+            </label>
+            <div class="border rounded-lg overflow-auto max-h-[300px]">
+              <div class="relative w-full overflow-auto">
+                <table class="w-full caption-bottom text-sm">
+                  <thead class="[&amp;_tr]:border-b">
+                    <tr
+                      class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted"
+                    >
+                      <th
+                        class="h-12 px-4 text-left align-middle text-muted-foreground [&amp;:has([role=checkbox])]:pr-0 font-normal"
+                      >
+                        Symbol
+                      </th>
+                      <th
+                        class="h-12 px-4 text-left align-middle text-muted-foreground [&amp;:has([role=checkbox])]:pr-0 font-normal"
+                      >
+                        Name
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody
+                    class="[&amp;_tr:last-child]:border-0"
+                    id="searchResults"
+                    hx-target="#selectedResults"
+                    hx-swap="outerHTML"
+                    hx-on::after-swap="filterResults()"
+                  ></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid gap-2 col-span-2">
+          <div>
+            <label
+              class="font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-sm"
+            >
+              Strategy
+            </label>
+            <select
+              name="strategy"
+              id="strategy-selector"
+              hx-trigger="load"
+              hx-get="http://localhost:8080/strategies"
+              hx-target="this"
+              hx-swap="innerHTML"
+              class="h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+            ></select>
+          </div>
+
+          <div>
+            <label
+              class="font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-sm"
+            >
+              Start Date
+            </label>
+            <input
+              class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+              placeholder="Start Date"
+              type="date"
+              name="start"
+              id="backtest-start"
+              value="2023-01-01"
+            />
+          </div>
+          <div>
+            <label
+              class="font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-sm"
+            >
+              End Date
+            </label>
+            <input
+              class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+              placeholder="End Date"
+              type="date"
+              name="end"
+              id="backtest-end"
+              value="2023-12-31"
+            />
+          </div>
+          <button
+            hx-get="http://localhost:8080/backtest"
+            hx-include="[id=selectedResults] tr input, [id=backtest-start], [id=backtest-end], [id=strategy-selector]"
+            hx-target="#backtesting-results"
+            class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-primary/90 h-10 px-4 py-2 mt-auto bg-gray-900 text-white dark:bg-gray-800"
+          >
+            Get results
+          </button>
+        </div>
+        <div class="select-table-container col-span-5">
+          <label
+            class="font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-sm"
+          >
+            Selected Assets
+          </label>
+          <div class="border rounded-lg overflow-auto max-h-[300px]">
+            <div class="relative w-full overflow-auto">
+              <table
+                id="selectedResults"
+                hx-trigger="click"
+                hx-boost="true"
+                class="w-full caption-bottom text-sm"
+              >
+                <thead class="[&amp;_tr]:border-b">
+                  <tr
+                    class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted"
+                  >
+                    <th
+                      class="h-12 px-4 text-left align-middle text-muted-foreground [&amp;:has([role=checkbox])]:pr-0 font-normal"
+                    >
+                      Symbol
+                    </th>
+                    <th
+                      class="h-12 px-4 text-left align-middle text-muted-foreground [&amp;:has([role=checkbox])]:pr-0 font-normal"
+                    >
+                      Name
+                    </th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+            <!-- Selected results will be loaded here -->
+          </div>
+        </div>
+      </section>
+      <section>
+        <h3>Backtesting Results</h3>
+        <div>
+          <ul id="backtesting-results"></ul>
+        </div>
+      </section>
+    </div>
   </body>
 </html>
