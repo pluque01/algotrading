@@ -23,3 +23,10 @@ services:
     volumes:
       - ./frontend/:/var/www
       - ./nginx/conf.d/:/etc/nginx/conf.d/
+  tailwind:
+    build:
+      context: .
+    volumes:
+      - ./:/app
+    command: tailwindcss -i ./frontend/static/css/input.css -o ./frontend/static/css/output.css --watch
+    tty: true

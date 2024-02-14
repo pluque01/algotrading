@@ -11,6 +11,10 @@ RUN curl -L https://sourceforge.net/projects/ta-lib/files/ta-lib/0.4.0/ta-lib-0.
   && cd .. \
   && rm -rf /app/ta-lib /app/ta-lib.tar.gz
 
+RUN curl -sLO https://github.com/tailwindlabs/tailwindcss/releases/latest/download/tailwindcss-linux-x64 \
+  && chmod +x tailwindcss-linux-x64 \
+  && mv tailwindcss-linux-x64 /usr/local/bin/tailwindcss
+
 WORKDIR /app
 
 # Prevents Python from writing pyc files to disc (equivalent to python -B option)
