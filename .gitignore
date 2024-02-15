@@ -1,4 +1,4 @@
 **.whl
 **/app_config.json
 .env
-**output.html
+**output**
