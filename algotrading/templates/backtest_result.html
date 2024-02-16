@@ -1,6 +1,10 @@
-{% for key, value in results.items() %}
-
-<li>{{ key }} {{ value }}</li>
-
+{% for field_name, field in results.__fields__.items() %}
+<tr
+  class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted"
+>
+  <td class="p-4 align-middle">{{ field.title }}</td>
+  <td class="p-4 align-middle font-medium text-right">
+    {{ results[field_name] }}
+  </td>
+</tr>
 {% endfor %}
-

@@ -156,6 +156,41 @@
             Get results
           </button>
         </div>
+        <div class="col-span-5">
+          <label
+            class="font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-sm"
+          >
+            Backtest Results
+          </label>
+
+          <div class="border rounded-lg overflow-auto max-h-[300px]">
+            <div class="relative w-full overflow-auto">
+              <table class="w-full caption-bottom text-sm">
+                <thead class="[&amp;_tr]:border-b">
+                  <tr
+                    class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted"
+                  >
+                    <th
+                      class="h-12 px-4 text-left align-middle text-muted-foreground [&amp;:has([role=checkbox])]:pr-0 font-normal"
+                    >
+                      Parameter
+                    </th>
+                    <th
+                      class="h-12 px-4 text-center align-middle text-muted-foreground [&amp;:has([role=checkbox])]:pr-0 font-normal"
+                    >
+                      Value
+                    </th>
+                  </tr>
+                </thead>
+                <tbody
+                  class="[&amp;_tr:last-child]:border-0"
+                  id="backtesting-results"
+                ></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
         <div class="select-table-container col-span-5">
           <label
             class="font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-sm"
@@ -191,12 +226,6 @@
             </div>
             <!-- Selected results will be loaded here -->
           </div>
-        </div>
-      </section>
-      <section>
-        <h3>Backtesting Results</h3>
-        <div>
-          <ul id="backtesting-results"></ul>
         </div>
       </section>
     </div>

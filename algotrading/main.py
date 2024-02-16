@@ -216,7 +216,10 @@ def get_backtest(
     #     maximize="Equity Final [$]",
     #     constraint=lambda param: param.n1 < param.n2,
     # )
-    results = parse_backtest_results(bt.run())
+    backtest_results = parse_backtest_results(bt.run())
+    for field_name, value in backtest_results.dict().items():
+        if isinstance(value, float):
+            setattr(backtest_results, field_name, round(value, 2))
     # file = f"{symbol}_{start}_{end}_{timeframe}_{strategy}"
     # bt.plot(filename=f"frontend/{file}")
-    return {"results": results.dict()}
+    return {"results": backtest_results}
