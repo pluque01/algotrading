@@ -112,7 +112,7 @@ def filter_assets_by_prefix(assets: List[Asset], prefix: str) -> List[Asset]:
 
 @app.get("/assets", response_class=HTMLResponse)
 @htmx("assets")
-def get_assets(request: Request, search: str) -> List[Asset]:
+def get_assets(request: Request, search: str):
     assets = filter_assets_by_prefix(every_symbol, search)
     print(assets)
     return {"assets": assets}
@@ -143,7 +143,7 @@ def get_backtest(
     end: str,
     strategy: str,
     timeframe: str | None = "1Hour",
-) -> BacktestResults:
+):
     try:
         datetime.strptime(end, "%Y-%m-%d")
     except ValueError:
