@@ -72,8 +72,8 @@ def parse_assets(assets):
 
 def parse_backtest_results(results):
     return BacktestResults(
-        start_time=results["Start"],
-        end_time=results["End"],
+        start_time=results["Start"].strftime("%d-%m-%Y"),
+        end_time=results["End"].strftime("%d-%m-%Y"),
         duration=str(results["Duration"]),
         exposure_time=results["Exposure Time [%]"],
         equity_final=results["Equity Final [$]"],
