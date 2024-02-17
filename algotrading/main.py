@@ -1,11 +1,11 @@
 import os
 import importlib
 import re
-from typing import List
+from typing import Dict, List, Annotated
 from datetime import datetime
 from pathlib import Path
 
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, HTTPException, Request, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
@@ -114,7 +114,6 @@ def filter_assets_by_prefix(assets: List[Asset], prefix: str) -> List[Asset]:
 @htmx("assets")
 def get_assets(request: Request, search: str):
     assets = filter_assets_by_prefix(every_symbol, search)
-    print(assets)
     return {"assets": assets}
 
 
@@ -138,12 +137,14 @@ def get_strategies(request: Request):
 @htmx("backtest_result")
 def get_backtest(
     request: Request,
-    symbol: str,
     start: str,
     end: str,
     strategy: str,
     timeframe: str | None = "1Hour",
+    symbol: Annotated[list[str] | None, Query()] = None,
 ):
+    if not symbol:
+        raise HTTPException(status_code=422, detail="At least one symbol is required")
     try:
         datetime.strptime(end, "%Y-%m-%d")
     except ValueError:
@@ -172,54 +173,50 @@ def get_backtest(
     except ValueError as e:
         raise HTTPException(status_code=422, detail=str(e))
 
-    request_params = StockBarsRequest(
-        symbol_or_symbols=[symbol],
-        timeframe=tf,
-        start=datetime.strptime(start, "%Y-%m-%d"),
-        end=datetime.strptime(end, "%Y-%m-%d"),
-        adjustment=Adjustment.ALL,
-    )
+    req_backtest_results = {}
+    for s in symbol:
+        request_params = StockBarsRequest(
+            symbol_or_symbols=[s],
+            timeframe=tf,
+            start=datetime.strptime(start, "%Y-%m-%d"),
+            end=datetime.strptime(end, "%Y-%m-%d"),
+            adjustment=Adjustment.ALL,
+        )
 
-    bars = stock_client.get_stock_bars(request_params)
+        bars = stock_client.get_stock_bars(request_params)
 
-    if bars.data == {}:
-        raise HTTPException(status_code=404, detail="No data found for the given input")
+        if bars.data == {}:
+            raise HTTPException(
+                status_code=404, detail="No data found for the given input"
+            )
 
-    bars_df = bars.df
+        bars_df = bars.df
 
-    bars_df = bars_df.reset_index(level=0)
-    # Para que funcione correctamente hay que renombrar las columnas y establecer el índice del
-    # dataFrame en la fecha.
-    bars_df = bars_df.rename(
-        columns={
-            "open": "Open",
-            "close": "Close",
-            "high": "High",
-            "low": "Low",
-            "volume": "Volume",
-        }
-    )
-    # bars_df["timestamp"] = pd.to_datetime(bars_df["timestamp"], errors="ignore")
+        bars_df = bars_df.reset_index(level=0)
+        # Para que funcione correctamente hay que renombrar las columnas y establecer el índice del
+        # dataFrame en la fecha.
+        bars_df = bars_df.rename(
+            columns={
+                "open": "Open",
+                "close": "Close",
+                "high": "High",
+                "low": "Low",
+                "volume": "Volume",
+            }
+        )
+        bt = Backtest(
+            bars_df,
+            chosen_strategy_class,
+            cash=10000,
+            commission=0.002,
+            exclusive_orders=True,
+        )
 
-    # bars_df = bars_df.set_index("timestamp")
+        backtest_results = parse_backtest_results(bt.run())
+        # Round the float values to 2 decimal places
+        for field_name, value in backtest_results.dict().items():
+            if isinstance(value, float):
+                setattr(backtest_results, field_name, round(value, 2))
 
-    bt = Backtest(
-        bars_df,
-        chosen_strategy_class,
-        cash=10000,
-        commission=0.002,
-        exclusive_orders=True,
-    )
-    # bt.optimize(
-    #     n1=range(5, 30, 5),
-    #     n2=range(10, 70, 5),
-    #     maximize="Equity Final [$]",
-    #     constraint=lambda param: param.n1 < param.n2,
-    # )
-    backtest_results = parse_backtest_results(bt.run())
-    for field_name, value in backtest_results.dict().items():
-        if isinstance(value, float):
-            setattr(backtest_results, field_name, round(value, 2))
-    # file = f"{symbol}_{start}_{end}_{timeframe}_{strategy}"
-    # bt.plot(filename=f"frontend/{file}")
-    return {"results": backtest_results}
+        req_backtest_results[s] = backtest_results
+    return {"results": req_backtest_results}
