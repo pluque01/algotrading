@@ -42,94 +42,135 @@
       </a>
     </header>
     <div class="container mx-auto">
+      <div id="errors"></div>
       <section class="grid grid-cols-12 gap-4 items-start">
-        <div class="col-span-5 flex flex-col gap-4">
-          <div>
-            <label
-              class="font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-sm"
-              for="search"
+        <div class="col-span-12 lg:col-span-5">
+          <label
+            class="font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-sm"
+            for="search"
+          >
+            Search
+          </label>
+          <div class="relative">
+            <input
+              class="form-control flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+              type="search"
+              name="search"
+              placeholder="Begin Typing To Search Assets..."
+              hx-get="http://localhost:8080/assets"
+              hx-trigger="search"
+              hx-target="#searchResults"
+              hx-indicator="#search-indicator"
+            />
+            <div
+              id="search-indicator"
+              class="absolute top-2 right-5 flex items-center text-muted-foreground htmx-indicator"
             >
-              Search
-            </label>
-            <div class="relative">
-              <input
-                class="form-control flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                type="search"
-                name="search"
-                placeholder="Begin Typing To Search Assets..."
-                hx-get="http://localhost:8080/assets"
-                hx-trigger="search"
-                hx-target="#searchResults"
-                hx-indicator="#search-indicator"
-              />
-              <div
-                id="search-indicator"
-                class="absolute top-2 right-5 flex items-center text-muted-foreground htmx-indicator"
+              <svg
+                class="animate-spin h-5 w-5 mr-3"
+                xmlns="http://www.w3.org/2000/svg"
+                width="32"
+                height="32"
+                fill="none"
+                viewBox="0 0 24 24"
               >
-                <svg
-                  class="animate-spin h-5 w-5 mr-3"
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="32"
-                  height="32"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  <circle
-                    class="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    stroke-width="4"
-                  ></circle>
-                  <path
-                    class="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.96 7.96 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                  ></path>
-                </svg>
-              </div>
-            </div>
-          </div>
-          <div class="search-table-container">
-            <label
-              class="font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-sm"
-            >
-              Found Assets
-            </label>
-            <div class="border rounded-lg overflow-auto max-h-[300px]">
-              <div class="relative w-full overflow-auto">
-                <table class="w-full caption-bottom text-sm">
-                  <thead class="[&amp;_tr]:border-b">
-                    <tr
-                      class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted"
-                    >
-                      <th
-                        class="h-12 px-4 text-left align-middle text-muted-foreground [&amp;:has([role=checkbox])]:pr-0 font-normal"
-                      >
-                        Symbol
-                      </th>
-                      <th
-                        class="h-12 px-4 text-left align-middle text-muted-foreground [&amp;:has([role=checkbox])]:pr-0 font-normal"
-                      >
-                        Name
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody
-                    class="[&amp;_tr:last-child]:border-0"
-                    id="searchResults"
-                    hx-target="#selectedResults"
-                    hx-swap="outerHTML"
-                    hx-on::after-swap="filterResults()"
-                  ></tbody>
-                </table>
-              </div>
+                <circle
+                  class="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  stroke-width="4"
+                ></circle>
+                <path
+                  class="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.96 7.96 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                ></path>
+              </svg>
             </div>
           </div>
         </div>
+      </section>
+      <section class="grid grid-cols-12 gap-4 items-start">
+        <div
+          class="search-table-container row-start-1 col-span-12 lg:col-span-5 md:col-span-9"
+        >
+          <label
+            class="font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-sm"
+          >
+            Found Assets
+          </label>
+          <div class="border rounded-lg overflow-auto max-h-[300px]">
+            <div class="relative w-full overflow-auto">
+              <table class="w-full caption-bottom text-sm">
+                <thead class="[&amp;_tr]:border-b">
+                  <tr
+                    class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted"
+                  >
+                    <th
+                      class="h-12 px-4 text-left align-middle text-muted-foreground [&amp;:has([role=checkbox])]:pr-0 font-normal"
+                    >
+                      Name
+                    </th>
+                    <th
+                      class="h-12 px-4 text-left align-middle text-muted-foreground [&amp;:has([role=checkbox])]:pr-0 font-normal"
+                    >
+                      Symbol
+                    </th>
+                  </tr>
+                </thead>
+                <tbody
+                  class="[&amp;_tr:last-child]:border-0"
+                  id="searchResults"
+                  hx-target="#selectedResults"
+                  hx-swap="outerHTML"
+                  hx-on::after-swap="filterResults()"
+                ></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <div
+          class="select-table-container col-span-12 lg:col-span-5 lg:row-start-1 md:col-span-9 md:row-start-2"
+        >
+          <label
+            class="font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-sm"
+          >
+            Selected Assets
+          </label>
+          <div class="border rounded-lg overflow-auto max-h-[300px]">
+            <div class="relative w-full overflow-auto">
+              <table
+                id="selectedResults"
+                hx-trigger="click"
+                hx-boost="true"
+                class="w-full caption-bottom text-sm"
+              >
+                <thead class="[&amp;_tr]:border-b">
+                  <tr
+                    class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted"
+                  >
+                    <th
+                      class="h-12 px-4 text-left align-middle text-muted-foreground [&amp;:has([role=checkbox])]:pr-0 font-normal"
+                    >
+                      Name
+                    </th>
+                    <th
+                      class="h-12 px-4 text-left align-middle text-muted-foreground [&amp;:has([role=checkbox])]:pr-0 font-normal"
+                    >
+                      Symbol
+                    </th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+            <!-- Selected results will be loaded here -->
+          </div>
+        </div>
 
-        <div class="grid gap-2 col-span-2">
+        <div class="grid gap-2 col-span-12 md:col-span-3 lg:col-span-2">
           <div>
             <label
               class="font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-sm"
@@ -216,77 +257,9 @@
             </div>
           </div>
         </div>
-        <div class="col-span-5">
-          <label
-            class="font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-sm"
-          >
-            Backtest Results
-          </label>
-
-          <div class="border rounded-lg overflow-auto max-h-[300px]">
-            <div class="relative w-full overflow-auto">
-              <table class="w-full caption-bottom text-sm">
-                <thead class="[&amp;_tr]:border-b">
-                  <tr
-                    class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted"
-                  >
-                    <th
-                      class="h-12 px-4 text-left align-middle text-muted-foreground [&amp;:has([role=checkbox])]:pr-0 font-normal"
-                    >
-                      Parameter
-                    </th>
-                    <th
-                      class="h-12 px-4 text-center align-middle text-muted-foreground [&amp;:has([role=checkbox])]:pr-0 font-normal"
-                    >
-                      Value
-                    </th>
-                  </tr>
-                </thead>
-                <tbody
-                  class="[&amp;_tr:last-child]:border-0"
-                  id="backtesting-results"
-                ></tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-
-        <div class="select-table-container col-span-5">
-          <label
-            class="font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-sm"
-          >
-            Selected Assets
-          </label>
-          <div class="border rounded-lg overflow-auto max-h-[300px]">
-            <div class="relative w-full overflow-auto">
-              <table
-                id="selectedResults"
-                hx-trigger="click"
-                hx-boost="true"
-                class="w-full caption-bottom text-sm"
-              >
-                <thead class="[&amp;_tr]:border-b">
-                  <tr
-                    class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted"
-                  >
-                    <th
-                      class="h-12 px-4 text-left align-middle text-muted-foreground [&amp;:has([role=checkbox])]:pr-0 font-normal"
-                    >
-                      Symbol
-                    </th>
-                    <th
-                      class="h-12 px-4 text-left align-middle text-muted-foreground [&amp;:has([role=checkbox])]:pr-0 font-normal"
-                    >
-                      Name
-                    </th>
-                  </tr>
-                </thead>
-                <tbody></tbody>
-              </table>
-            </div>
-            <!-- Selected results will be loaded here -->
-          </div>
-        </div>
+      </section>
+      <section>
+        <div class="col-span-12" id="backtesting-results"></div>
       </section>
     </div>
   </body>
