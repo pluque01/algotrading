@@ -19,6 +19,7 @@ import os
 import talib
 import numpy as np
 
+
 # Devuelve true si la segunda media móvil se ha hecho más grande que la primera
 def crossover(sma1, sma2):
     if len(sma1) < 2 or len(sma2) < 2:
@@ -31,8 +32,9 @@ def crossover(sma1, sma2):
 
     return next_to_last_sma1 > next_to_last_sma2 and last_sma1 < last_sma2
 
-class StrategyAccount():
-    #account = TradingClient(api_key, secret_key)
+
+class StrategyAccount:
+    # account = TradingClient(api_key, secret_key)
 
     n1 = 10
     n2 = 20
@@ -42,7 +44,7 @@ class StrategyAccount():
         self.sma1 = talib.SMA(close, self.n1)
         self.sma2 = talib.SMA(close, self.n2)
         self.trading_client = trading_client
-    
+
     def init(self):
         return None
 
@@ -50,13 +52,13 @@ class StrategyAccount():
         return None
 
     def buy_signal(self):
-        if crossover(self.sma2,self.sma1):
+        if crossover(self.sma2, self.sma1):
             return True
         else:
             return False
-        
+
     def sell_signal(self):
-        if crossover(self.sma1,self.sma2):
+        if crossover(self.sma1, self.sma2):
             return True
         else:
             return False
@@ -64,10 +66,10 @@ class StrategyAccount():
     def order(self):
         side = None
         if self.buy_signal():
-            side=OrderSide.BUY
+            side = OrderSide.BUY
             print("Debería comprar\n")
         elif self.sell_signal():
-            side=OrderSide.SELL
+            side = OrderSide.SELL
             print("Debería vender\n")
 
         if side == None:
@@ -82,8 +84,8 @@ class StrategyAccount():
         #             )
         #     market_order = self.trading_client.submit_order(
         #         order_data=market_order_data)
-            
-    def new_data(self,data):
+
+    def new_data(self, data):
         self.close.append(data)
         self.sma1 = talib.SMA(self.close, self.n1)
         self.sma2 = talib.SMA(self.close, self.n2)
@@ -132,5 +134,3 @@ print(estrategia_sma.sma1)
 print(estrategia_sma.sma2)
 
 estrategia_sma.order()
-
-        

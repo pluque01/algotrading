@@ -6,6 +6,7 @@ from datetime import datetime
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException, Request, Query
+from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
@@ -39,17 +40,8 @@ stock_client = StockHistoricalDataClient(api_key, secret_key)
 
 app = FastAPI()
 
-origins = [
-    "http://localhost",
-    "http://localhost:8080",
-]
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+app.mount(
+    "/static", StaticFiles(directory=Path("algotrading") / "static"), name="static"
 )
 
 htmx_init(
@@ -108,6 +100,12 @@ def filter_assets_by_prefix(assets: List[Asset], prefix: str) -> List[Asset]:
         or asset.symbol.lower().startswith(prefix.lower())
     ]
     return filtered_assets
+
+
+@app.get("/", response_class=HTMLResponse)
+@htmx("index", "index")
+def get_home(request: Request):
+    return {"greatings": "Welcome to AlgoTrading!"}
 
 
 @app.get("/assets", response_class=HTMLResponse)
