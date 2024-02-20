@@ -1,17 +1,43 @@
-{% for key, asset in results.items() %}
-<tr
-  class="border-b transition-colors"
+<label
+  class="font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-sm"
 >
-  <td class="p-4 align-middle font-bold">{{ key }}</td>
-</tr>
-{% for field_name, field in asset.__fields__.items() %}
-<tr
-  class="border-b transition-colors hover:bg-muted/50"
->
-  <td class="p-4 align-middle">{{ field.title }}</td>
-  <td class="p-4 align-middle font-medium text-right">
-    {{ asset[field_name] }}
-  </td>
-</tr>
-{% endfor %}
-{% endfor %}
+  Backtest Results
+</label>
+
+<div class="border rounded-lg overflow-auto max-h-[300px]">
+  <div class="relative w-full overflow-auto">
+    <table class="w-full caption-bottom text-sm" id="">
+      <thead class="[&amp;_tr]:border-b">
+        <tr
+          class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted"
+        >
+          <th></th>
+          {% set first_asset_key, first_asset_value = results.items() | first %}
+          {% for field_name, field in first_asset_value.__fields__.items() %}
+          <th
+            class="h-12 px-4 text-right align-middle text-muted-foreground [&amp;:has([role=checkbox])]:pr-0 font-normal"
+          >
+            {{ field.title }}
+          </th>
+          {% endfor %}
+        </tr>
+      </thead>
+      <tbody
+        class="[&amp;_tr:last-child]:border-0"
+      >
+        {% for key, asset in results.items() %}
+        <tr
+          class="border-b transition-colors hover:bg-muted/50"
+        >
+          <td class="p-4 align-middle">{{ key }}</td>
+          {% for field_name, _ in asset.__fields__.items() %}
+          <td class="p-4 align-middle font-medium text-right">
+            {{ asset[field_name] }}
+          </td>
+          {% endfor %}
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
