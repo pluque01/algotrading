@@ -4,7 +4,7 @@ function addToSelection(itemId) {
 
   var itemToAdd = searchTable.querySelector("#" + itemId);
   itemToAdd.setAttribute("onclick", "removeFromSelection(id)");
-  selectedTable.querySelector("tbody").appendChild(itemToAdd);
+  selectedTable.appendChild(itemToAdd);
 }
 
 function removeFromSelection(itemId) {

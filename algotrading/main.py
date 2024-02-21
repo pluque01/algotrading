@@ -103,7 +103,7 @@ def filter_assets_by_prefix(assets: List[Asset], prefix: str) -> List[Asset]:
 
 
 @app.get("/", response_class=HTMLResponse)
-@htmx("index", "index")
+@htmx("index", "home/index")
 def get_home(request: Request):
     return {"greatings": "Welcome to AlgoTrading!"}
 
