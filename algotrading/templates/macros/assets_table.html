@@ -1,4 +1,4 @@
-{% from "macros/label.html" import label %} 
+{% from "macros/label.html" import label %}
 {% macro assets_table(label_text, id) -%}
 {{ label(label_text) }}
 <div class="border rounded-lg overflow-auto max-h-[300px]">
@@ -20,7 +20,11 @@
           </th>
         </tr>
       </thead>
-      <tbody class="[&amp;_tr:last-child]:border-0" id="{{ id }}"></tbody>
+      <tbody
+        class="[&amp;_tr:last-child]:border-0"
+        id="{{ id }}"
+        {{ caller() }}
+      ></tbody>
     </table>
   </div>
 </div>

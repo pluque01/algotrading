@@ -12,12 +12,15 @@
       <div
         class="search-table-container row-start-1 col-span-12 lg:col-span-5 md:col-span-9"
       >
-        {{ assets_table("Found Assets", "searchResults") }}
+        {% call assets_table("Found Assets", "searchResults") %}
+          hx-on::after-swap="filterResults()"
+        {% endcall %}
       </div>
       <div
         class="select-table-container col-span-12 lg:col-span-5 lg:row-start-1 md:col-span-9 md:row-start-2"
       >
-        {{ assets_table("Selected Assets", "selectedResults") }}
+        {% call assets_table("Selected Assets", "selectedResults") %}
+        {% endcall %}
       </div>
       <div class="col-span-12 md:col-span-3 lg:col-span-2">
         {% include "partials/backtest_form.html" %}
@@ -25,6 +28,9 @@
     </section>
     <section>
       <div class="col-span-12" id="backtesting-results"></div>
+    </section>
+    <section>
+      <div class="col-span-12" id="backtesting-plot"></div>
     </section>
   </div>
 </body>

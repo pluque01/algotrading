@@ -22,6 +22,7 @@ function filterResults() {
   selectedTableRows.forEach(function (row) {
     var id = row.getAttribute("id");
     var item = searchTable.querySelector("#" + id);
+    console.log(item);
     if (item) {
       item.remove();
     }

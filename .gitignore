@@ -2,3 +2,4 @@
 **/app_config.json
 .env
 **output**
+**/plot/**

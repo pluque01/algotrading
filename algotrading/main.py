@@ -24,9 +24,10 @@ from alpaca.trading.requests import GetAssetsRequest
 from alpaca.trading.enums import AssetStatus
 
 
-from backtesting import Backtest
+from algotrading.backtester.backtester import Backtester, BacktesterRequest
 
-from .models import Asset, BacktestResults
+from algotrading.backtester.models import BacktestResults
+from algotrading.models import Asset
 from . import strategies
 
 api_key = os.environ["API_KEY"]
@@ -43,11 +44,14 @@ app = FastAPI()
 app.mount(
     "/static", StaticFiles(directory=Path("algotrading") / "static"), name="static"
 )
+app.mount("/plot", StaticFiles(directory=Path("algotrading") / "plot"), name="plot")
 
 htmx_init(
     templates=Jinja2Templates(directory=Path("algotrading") / "templates"),
     file_extension="html",
 )
+
+backtester = Backtester()
 
 
 # This function cicles through the assets and creates a Symbol object for each one
@@ -171,50 +175,18 @@ def get_backtest(
     except ValueError as e:
         raise HTTPException(status_code=422, detail=str(e))
 
-    req_backtest_results = {}
-    for s in symbol:
-        request_params = StockBarsRequest(
-            symbol_or_symbols=[s],
-            timeframe=tf,
-            start=datetime.strptime(start, "%Y-%m-%d"),
-            end=datetime.strptime(end, "%Y-%m-%d"),
-            adjustment=Adjustment.ALL,
-        )
+    backtest_request = BacktesterRequest(
+        assets=symbol,
+        strategy=chosen_strategy_class,
+        start_date=datetime.strptime(start, "%Y-%m-%d"),
+        end_date=datetime.strptime(end, "%Y-%m-%d"),
+        timeframe=tf,
+    )
+    backtester.perform_backtest(backtest_request)
+    return {"results": backtester.get_backtest_data()}
 
-        bars = stock_client.get_stock_bars(request_params)
 
-        if bars.data == {}:
-            raise HTTPException(
-                status_code=404, detail="No data found for the given input"
-            )
-
-        bars_df = bars.df
-
-        bars_df = bars_df.reset_index(level=0)
-        # Para que funcione correctamente hay que renombrar las columnas y establecer el índice del
-        # dataFrame en la fecha.
-        bars_df = bars_df.rename(
-            columns={
-                "open": "Open",
-                "close": "Close",
-                "high": "High",
-                "low": "Low",
-                "volume": "Volume",
-            }
-        )
-        bt = Backtest(
-            bars_df,
-            chosen_strategy_class,
-            cash=10000,
-            commission=0.002,
-            exclusive_orders=True,
-        )
-
-        backtest_results = parse_backtest_results(bt.run())
-        # Round the float values to 2 decimal places
-        for field_name, value in backtest_results.dict().items():
-            if isinstance(value, float):
-                setattr(backtest_results, field_name, round(value, 2))
-
-        req_backtest_results[s] = backtest_results
-    return {"results": req_backtest_results}
+@app.get("/plot", response_class=HTMLResponse)
+@htmx("backtest_plot")
+def get_plot(request: Request, symbol: str):
+    return {"plot": backtester.get_backtest_figure_by_id(symbol)}
