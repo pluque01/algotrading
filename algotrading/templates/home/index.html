@@ -1,0 +1,37 @@
+{% from "macros/assets_table.html" import assets_table %}
+{% extends "shared/_layout.html" %} {% block content %}
+<body>
+  <div class="container mx-auto">
+    <div id="errors"></div>
+    <section class="grid grid-cols-12 gap-4 items-start">
+      <div class="col-span-12 lg:col-span-5">
+        {% include "partials/assets_search_bar.html" %}
+      </div>
+    </section>
+    <section class="grid grid-cols-12 gap-4 items-start">
+      <div
+        class="search-table-container row-start-1 col-span-12 lg:col-span-5 md:col-span-9"
+      >
+        {% call assets_table("Found Assets", "searchResults") %}
+          hx-on::after-swap="filterResults()"
+        {% endcall %}
+      </div>
+      <div
+        class="select-table-container col-span-12 lg:col-span-5 lg:row-start-1 md:col-span-9 md:row-start-2"
+      >
+        {% call assets_table("Selected Assets", "selectedResults") %}
+        {% endcall %}
+      </div>
+      <div class="col-span-12 md:col-span-3 lg:col-span-2">
+        {% include "partials/backtest_form.html" %}
+      </div>
+    </section>
+    <section>
+      <div class="col-span-12" id="backtesting-results"></div>
+    </section>
+    <section>
+      <div class="col-span-12" id="backtesting-plot"></div>
+    </section>
+  </div>
+</body>
+{% endblock %}

@@ -13,13 +13,12 @@ services:
       - SECRET_KEY=${SECRET_KEY}
     volumes:
       - ./algotrading/:/app/algotrading
-      - ./frontend:/app/frontend
     ports:
       - 8080:8000
-  nginx:
-    image: nginx:alpine
-    ports:
-      - "80:80"
+  tailwind:
+    build:
+      context: .
     volumes:
-      - ./frontend/:/var/www
-      - ./nginx/conf.d/:/etc/nginx/conf.d/
+      - ./:/app
+    command: tailwindcss -i ./algotrading/static/css/input.css -o ./algotrading/static/css/output.css --watch
+    tty: true
