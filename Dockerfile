@@ -1,4 +1,4 @@
-FROM python:3.12-rc-slim
+FROM python:3.11-slim
 
 RUN apt-get update && apt-get install -y build-essential curl
 
@@ -10,6 +10,10 @@ RUN curl -L https://sourceforge.net/projects/ta-lib/files/ta-lib/0.4.0/ta-lib-0.
   && make install \
   && cd .. \
   && rm -rf /app/ta-lib /app/ta-lib.tar.gz
+
+RUN curl -sLO https://github.com/tailwindlabs/tailwindcss/releases/latest/download/tailwindcss-linux-x64 \
+  && chmod +x tailwindcss-linux-x64 \
+  && mv tailwindcss-linux-x64 /usr/local/bin/tailwindcss
 
 WORKDIR /app
 

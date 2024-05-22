@@ -1,0 +1,41 @@
+{% from "macros/label.html" import label %}
+{{ label("Search Assets") }}
+<div class="relative">
+  <input
+    class="form-control flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+    type="search"
+    name="search"
+    placeholder="Begin Typing To Search Assets..."
+    hx-get="http://localhost:8080/assets"
+    hx-trigger="search"
+    hx-target="#searchResults"
+    hx-indicator="#search-indicator"
+  />
+  <div
+    id="search-indicator"
+    class="absolute top-2 right-5 flex items-center text-muted-foreground htmx-indicator"
+  >
+    <svg
+      class="animate-spin h-5 w-5 mr-3"
+      xmlns="http://www.w3.org/2000/svg"
+      width="32"
+      height="32"
+      fill="none"
+      viewBox="0 0 24 24"
+    >
+      <circle
+        class="opacity-25"
+        cx="12"
+        cy="12"
+        r="10"
+        stroke="currentColor"
+        stroke-width="4"
+      ></circle>
+      <path
+        class="opacity-75"
+        fill="currentColor"
+        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.96 7.96 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+      ></path>
+    </svg>
+  </div>
+</div>
