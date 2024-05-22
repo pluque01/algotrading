@@ -14,8 +14,6 @@ from fastapi_htmx import htmx, htmx_init
 
 from alpaca.data import (
     StockHistoricalDataClient,
-    StockBarsRequest,
-    Adjustment,
     TimeFrame,
     TimeFrameUnit,
 )
@@ -66,18 +64,6 @@ def parse_assets(assets):
     return parsed_assets_list
 
 
-def parse_backtest_results(results):
-    return BacktestResults(
-        start_time=results["Start"].strftime("%d-%m-%Y"),
-        end_time=results["End"].strftime("%d-%m-%Y"),
-        duration=str(results["Duration"]),
-        exposure_time=results["Exposure Time [%]"],
-        equity_final=results["Equity Final [$]"],
-        equity_peak=results["Equity Peak [$]"],
-        ret=results["Return [%]"],
-    )
-
-
 search_params = GetAssetsRequest(status=AssetStatus.ACTIVE)
 assets = trading_client.get_all_assets(search_params)
 every_symbol = parse_assets(assets)
@@ -112,14 +98,16 @@ def get_home(request: Request):
     return {"greatings": "Welcome to AlgoTrading!"}
 
 
-@app.get("/assets", response_class=HTMLResponse)
+@app.get("/assets")
 @htmx("assets")
 def get_assets(request: Request, search: str):
     assets = filter_assets_by_prefix(every_symbol, search)
-    return {"assets": assets}
+    if request.headers.get("HX-Request"):
+        return {"assets": assets}
+    return assets
 
 
-@app.get("/strategies", response_class=HTMLResponse)
+@app.get("/strategies")
 @htmx("strategies")
 def get_strategies(request: Request):
     strategies_module = importlib.import_module("algotrading.strategies")
@@ -132,10 +120,12 @@ def get_strategies(request: Request):
         and atribute != "Strategy"
     ]
 
-    return {"strategies": strategies}
+    if request.headers.get("HX-Request"):
+        return {"strategies": strategies}
+    return strategies
 
 
-@app.get("/backtest", response_class=HTMLResponse)
+@app.get("/backtest")
 @htmx("backtest_result")
 def get_backtest(
     request: Request,
@@ -182,8 +172,15 @@ def get_backtest(
         end_date=datetime.strptime(end, "%Y-%m-%d"),
         timeframe=tf,
     )
-    backtester.perform_backtest(backtest_request)
-    return {"results": backtester.get_backtest_data()}
+    try:
+        backtester.perform_backtest(backtest_request)
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+
+    backtest_results = backtester.get_backtest_data()
+    if request.headers.get("HX-Request"):
+        return {"results": backtest_results}
+    return backtest_results
 
 
 @app.get("/plot", response_class=HTMLResponse)
