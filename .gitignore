@@ -1,5 +1,4 @@
 **.whl
 **/app_config.json
 .env
-**output**
-**/plot/**
+**output.html
