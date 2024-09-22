@@ -1,3 +1,4 @@
+alpaca_trade_api
 matplotlib==3.8.2
 backtesting==0.3.3
 TA-Lib
@@ -6,5 +7,3 @@ fastapi
 uvicorn[standard]
 pytest
 httpx
-jinja2
-fastapi-htmx
