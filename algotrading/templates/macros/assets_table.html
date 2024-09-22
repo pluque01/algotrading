@@ -1,0 +1,31 @@
+{% from "macros/label.html" import label %}
+{% macro assets_table(label_text, id) -%}
+{{ label(label_text) }}
+<div class="border rounded-lg overflow-auto max-h-[300px]">
+  <div class="relative w-full overflow-auto">
+    <table class="w-full caption-bottom text-sm">
+      <thead class="[&amp;_tr]:border-b">
+        <tr
+          class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted"
+        >
+          <th
+            class="h-12 px-4 text-left align-middle text-muted-foreground [&amp;:has([role=checkbox])]:pr-0 font-normal"
+          >
+            Name
+          </th>
+          <th
+            class="h-12 px-4 text-left align-middle text-muted-foreground [&amp;:has([role=checkbox])]:pr-0 font-normal"
+          >
+            Symbol
+          </th>
+        </tr>
+      </thead>
+      <tbody
+        class="[&amp;_tr:last-child]:border-0"
+        id="{{ id }}"
+        {{ caller() }}
+      ></tbody>
+    </table>
+  </div>
+</div>
+{%- endmacro %}

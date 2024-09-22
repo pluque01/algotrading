@@ -1,0 +1,11 @@
+{% from "macros/label.html" import label %} {{ label("Plot") }}
+<iframe
+  data-src="{{plot}}"
+  id="iframe"
+  loading="lazy"
+  style="width: 100%; margin-top: 1em; height: 700px; overflow: hidden"
+  data-ga-on="wheel"
+  data-ga-event-category="iframe"
+  data-ga-event-action="wheel"
+  src="{{plot}}"
+></iframe>
